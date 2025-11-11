@@ -11,9 +11,22 @@ public class PlayerHealth : MonoBehaviour
     public float respawnDelay = 0f;
     private bool isDead = false;
 
+    [Header("Fall Detection")]
+    public float fallLimit = -10f; // Posición Y donde se considera que cayó
+    public bool checkFallOutOfScreen = true;
+
     void Start()
     {
         currentHealth = maxHealth;
+    }
+
+    void Update()
+    {
+        // Verificar si el jugador cayó fuera de la pantalla
+        if (checkFallOutOfScreen && transform.position.y < fallLimit)
+        {
+            Die();
+        }
     }
 
     void OnCollisionEnter2D(Collision2D collision)

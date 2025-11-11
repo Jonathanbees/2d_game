@@ -4,6 +4,9 @@ public class PlayerCoin : MonoBehaviour
 {
     [Header("Coin Settings")]
     public int totalCoins = 0;
+    
+    [Header("Particle Effect")]
+    public GameObject particleEffectPrefab; // Arrastra aquí el prefab desde el Inspector
 
     void Start()
     {
@@ -26,6 +29,15 @@ public class PlayerCoin : MonoBehaviour
         // Incrementar el contador de monedas
         totalCoins++;
         Debug.Log($"¡Moneda recogida! Total: {totalCoins}");
+        
+        // Instanciar el efecto de partículas en la posición de la moneda
+        if (particleEffectPrefab != null)
+        {
+            GameObject particle = Instantiate(particleEffectPrefab, coin.transform.position, Quaternion.identity);
+            
+            // Destruir el efecto después de que termine (opcional, normalmente 2-3 segundos)
+            Destroy(particle, 2f);
+        }
         
         // Destruir la moneda
         Destroy(coin);
