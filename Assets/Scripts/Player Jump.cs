@@ -4,6 +4,10 @@ public class PlayerJump : MonoBehaviour
 {
     private Rigidbody2D rb;
     public float jumpForce = 10f;
+    
+    [Header("Movement")]
+    public float moveSpeed = 5f;
+    private float horizontalInput;
 
     // Ground Check variables
     public Transform groundCheck;
@@ -20,14 +24,16 @@ public class PlayerJump : MonoBehaviour
     private float jumpBufferTime = 0.15f;
     private float jumpBufferCounter;
 
-
-    
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
     }
-   void Update()
+    
+    void Update()
     {
+        // Leer input de movimiento
+        horizontalInput = Input.GetAxisRaw("Horizontal");
+        
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
         // --- Coyote Time Logic ---
@@ -39,33 +45,33 @@ public class PlayerJump : MonoBehaviour
         {
             coyoteTimeCounter -= Time.deltaTime;
         }
-        //imprimir un log
+        
         Debug.Log("input jump: " + Input.GetButtonDown("Jump"));
 
         // --- Modify Jump Input Check ---
-        if (Input.GetButtonDown("Jump") && coyoteTimeCounter > 0f) // Check counter, not isGrounded
+        if (Input.GetButtonDown("Jump") && coyoteTimeCounter > 0f)
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            coyoteTimeCounter = 0f; // Use up the coyote time jump
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            coyoteTimeCounter = 0f;
         }
     }
     
-    // FixedUpdate remains the same as Step 3
     void FixedUpdate()
     {
-        if (rb.velocity.y < 0)
+        // Aplicar movimiento horizontal
+        rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y);
+        
+        // Mejor caída y salto
+        if (rb.linearVelocity.y < 0)
         {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
+            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
         }
-        else if (rb.velocity.y > 0 && !Input.GetButton("Jump"))
+        else if (rb.linearVelocity.y > 0 && !Input.GetButton("Jump"))
         {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
+            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
         }
     }
 
-
-
-    // Helper function to visualize the ground check radius in the Scene view
     private void OnDrawGizmosSelected()
     {
         if (groundCheck == null) return;
